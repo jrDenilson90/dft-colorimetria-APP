@@ -1,0 +1,22 @@
+- var tabsIndex = 0
+
+mixin mostLovedTabs(tabs)
+    - tabsIndex = (typeof tabsIndex !== 'undefined' ? tabsIndex + 1 : 1)
+    - const groupId = 'tabs_' + tabsIndex
+    .most_loved_tabs(data-tabs-id=groupId)
+        // Radios e labels das abas
+        each tab, idx in tabs
+            - const tabId = `${groupId}_tab${idx+1}`
+            input(type="radio" id=tabId name=`${groupId}_group` checked=idx === 0)
+            label.tab(for=tabId)
+                h3= tab.title
+
+        // Conteúdo das abas
+        .tabsContent
+            each tab, idx in tabs
+                - const tabClass = `tabContent tabContent${idx+1}`
+                article(class=tabClass)
+                    img(src=tab.img, alt=tab.title, height="196", width="196")
+                    div
+                        p= tab.text
+                        a(href=tab.link.url)= tab.link.text

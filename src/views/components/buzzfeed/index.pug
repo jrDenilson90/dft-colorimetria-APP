@@ -1,0 +1,70 @@
+- var quizIndex = 0
+
+mixin buzzfeedQuiz(questions, modals)
+    - quizIndex = (typeof quizIndex !== 'undefined' ? quizIndex + 1 : 1)
+    - const quizId = 'quiz_' + quizIndex
+
+    .containerBuzzFeed
+        .buzzfeed-quiz(data-quiz-id=quizId)
+            each question, qIndex in questions
+                - const type = question.type || 'simple'
+                - const isBonus = (qIndex === questions.length - 1 && question.isBonus === true)
+                .quiz-question(
+                    data-question=qIndex
+                    style=(qIndex === 0 ? 'display:block' : 'display:none')
+                    data-type=type
+                    class=(isBonus ? 'bonus' : '')
+                )
+                    .boxQuestion
+                        h3.text(tabindex="0")!= question.text
+                        if question.subtext
+                            p.subtext!= question.subtext
+
+                    .invertOrder
+                        // Keen Slider nas alternativas + botões juntos
+                        .quiz-options.keen-slider(id=`keen-slider-q${quizId}-${qIndex}`)
+                            // ALTERNATIVAS (slides)
+                            each option, oIdx in question.options
+                                if type === 'multiple'
+                                    label.keen-slider__slide(data-slide-idx=oIdx tabindex="0")
+                                        input.quiz-option(
+                                            type="checkbox"
+                                            name=`${quizId}_q${qIndex}`
+                                            value=option.feedback
+                                            data-feedback=option.feedback
+                                            data-question=qIndex
+                                        )
+                                        if option.image
+                                            .boxImg
+                                                img(src=option.image, alt=option.alt , class="option-image")
+                                        else if option.text
+                                            span= option.text
+                                else
+                                    label.keen-slider__slide(data-slide-idx=oIdx tabindex="0")
+                                        input.quiz-option(
+                                            type="radio"
+                                            name=`${quizId}_q${qIndex}`
+                                            value=option.feedback
+                                            data-feedback=option.feedback
+                                            data-question=qIndex
+                                        )
+                                        if option.image
+                                            .boxImg
+                                                img(src=option.image, alt=option.alt, class="option-image")
+                                        else if option.text
+                                            span= option.text
+                                        p.text.subtext= option.alt
+                        
+                        .boxPregress
+                            button.prev-btn(type="button" tabindex="-1")
+                            .borraProgress
+                                .avanco
+                                    p.text.textAvanco
+                            button.next-btn(type="button" tabindex="-1")
+
+            // Modais de resultado dinâmicos (sempre obrigatório)
+            if modals
+                each modalContent, feedback in modals
+                    .quiz-modal(class=`feedback-${feedback}` style="display:none;")
+                        .modal-content
+                            != modalContent

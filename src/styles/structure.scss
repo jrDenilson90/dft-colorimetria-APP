@@ -1,0 +1,62 @@
+@use '../styles/variables' as *;
+
+.dafitiStructure * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+    scroll-margin-top: 95px;
+}
+
+:focus {
+    outline: none;
+}
+
+.dafitiStructure {
+    font-size: 62.5%;
+    // max-width: 1980px;
+    margin: 0 auto;
+    // box-shadow: 0em 0em 5em #0002;
+    text-wrap: pretty;
+    // margin-bottom: 4em;
+}
+
+.text {
+    color: $black;
+    line-height: 1.6;
+    font-size: 1.6em;
+    font-family: $bask;
+    font-weight: 300;
+    @media (min-width: $big-size) {
+        font-size: 2.2em;
+    }
+
+    b {
+        font-weight: 700;
+    }
+}
+
+.btn-padrao {
+    background-color: $color01;
+    border: solid .2em $color01;
+    padding: .7em 3.8em;
+    border-radius: 5em;
+    box-shadow: .2em .1em .2em #0003;
+    text-decoration: none !important;
+    transition-duration: .3s;
+    backdrop-filter: blur(.1em);
+    cursor: pointer;
+
+    p {
+        color: $white;
+        font-family: $poppins;
+        text-decoration: none !important;
+    }
+
+    &:hover {
+        background-color: rgba($color: $white, $alpha: .3);
+        p {
+            color: $color01;
+        }
+    }
+}

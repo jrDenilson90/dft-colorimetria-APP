@@ -1,0 +1,390 @@
+@use '../styles/variables' as *;
+
+.buzzfeed-quiz {
+    width: 100%;
+    margin: 0 auto;
+
+    // Garante que só a pergunta ativa aparece
+    .quiz-question {
+        display: none;
+    }
+    .quiz-question[style*="display:block"] {
+        display: flex !important;
+    }
+    .quiz-question.active-question {
+        display: flex !important;
+    }
+
+    .quiz-question {
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 0 4em;
+
+        .boxQuestion {
+            padding: 1.5em 1em;
+            font-family: $poppins;
+            text-align: center;                
+
+            h3 {
+                font-family: $poppins;
+                font-size: 1.8em;
+                @media (min-width: $big-size) {
+                    font-size: 2.2em;
+                }
+                @media (max-width: $tablet-size) {
+                    font-size: 2em;
+                }
+                @media (max-width: $mobile-size) {
+                    font-size: 1.6em;
+                }
+            }
+    
+            .subtext {
+                font-size: 1.5em;
+                @media (min-width: $big-size) {
+                    font-size: 1.9em;
+                }
+                @media (max-width: $tablet-size) {
+                    font-size: 1.7em;
+                }
+                @media (max-width: $mobile-size) {
+                    font-size: 1.3em;
+                }
+            }
+        }
+
+        .invertOrder {
+            display: flex;
+            flex-direction: column-reverse;
+
+            .boxPregress {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 1em;
+                margin-top: 1em;
+            
+                button {
+                    cursor: pointer;
+                    width: 1.5em;
+                    height: 3em;
+                    background-image: url('https://dafitistatic.dafiti.com.br/cms/colorimetria-br/2025_06_12_17_16_41_arrow.svg');
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: contain;
+                    border: none;
+                    background-color: transparent;
+            
+                    @media (max-width: $tablet-size) {
+                        height: 2.5em;
+                    }
+            
+                    @media (max-width: $mobile-size) {
+                        height: 2em;
+                    }
+            
+                    &:disabled {
+                        pointer-events: none;
+                        opacity: .5;
+                    }
+            
+                    &.next-btn {
+                        transform: rotate(180deg);
+                    }
+                }
+            
+                // BARRA DE PROGRESSO
+                .borraProgress {
+                    width: 60em;
+                    max-width: 80%;
+                    height: 4em;
+                    border: solid $color01 .2em;
+                    border-radius: 5em;
+                    overflow: hidden;
+            
+                    @media (max-width: $tablet-size) {
+                        height: 3.5em;
+                    }
+            
+                    @media (max-width: $mobile-size) {
+                        height: 3em;
+                    }
+            
+                    .avanco {
+                        transition-duration: .3s;
+                        width: 0%;
+                        height: 100%;
+                        background-color: $color01;
+                        display: flex;
+                        align-items: center;
+            
+                        .textAvanco {
+                            font-family: $poppins;
+                            color: $color01;
+                            // font-size: 1.5em;
+                            margin-left: 1em;
+                            font-weight: 500;
+                        }
+                    }
+                }
+            }
+
+            // Keen Slider navigation
+            .navigation-wrapper {
+                position: relative;
+                width: 100%;
+                margin: 0 auto 1.5em auto;
+                .arrow {
+                    position: absolute;
+                    top: calc(50% - 2.5em);
+                    width: 5em;
+                    height: 5em;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    // font-size: 2em;
+                    cursor: pointer;
+                    z-index: 2;
+                    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgZmlsbD0id2hpdGUiIHZlcnNpb249IjEuMSIgaWQ9IkNhbWFkYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCINCgkgdmlld0JveD0iMCAwIDI0IDI0IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAyNCAyNDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBvbHlnb24gcG9pbnRzPSI1LjMsMi4zIDE1LDEyIDUuMywyMS43IDcuMiwyMy42IDE4LjcsMTIgNy4yLDAuNCAiLz4NCjwvc3ZnPg0K');
+                    filter: drop-shadow(.3em .3em .3em #0005);
+                    transition-duration: .3s;
+                    &.arrow--left {
+                        left: 0;
+                        transform: rotateY(180deg);
+                        &:hover {
+                            transform: rotateY(180deg) scale(1.2);
+                        }
+                    }
+                    &.arrow--right {
+                        right: 0;
+                        &:hover {
+                            transform: scale(1.2);
+                        }
+                    }
+                    @media (max-width: $tablet-size) {
+                        display: none;
+                    }
+                }
+            }
+
+            // Keen Slider
+            .quiz-options {
+                display: flex;
+                overflow: hidden;
+                width: 100%;
+                margin: 0 auto;
+
+                // Keen slider classes
+                &.keen-slider {
+                    cursor: pointer;
+
+                    .keen-slider__slide {
+                        display: flex !important;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        max-width: 100%;
+                        box-sizing: border-box;
+                        opacity: 20%;
+
+                        &.slide-center {
+                            opacity: 1;
+                        }
+
+                        &.slide-right,
+                        &.slide-left {
+                            opacity: 50%;
+
+                            @media (max-width: $tablet-size) {
+                                opacity: 20%;
+                            }
+                        }
+                    }
+                }
+
+                label {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    cursor: pointer;
+                    overflow: hidden;
+                    padding: 0;
+                    min-width: 8em;
+                    background: $white;
+                    position: relative;
+
+                    input[type="radio"],
+                    input[type="checkbox"] {
+                        display: none;
+                    }
+
+                    .boxImg {
+                        border: 0.5em solid transparent;
+                        width: 100%;
+                        border-radius: 4.7em;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        overflow: hidden;
+                        object-fit: cover;
+
+                        @media (max-width: $tablet-size) {
+                            border-radius: 6em;
+                        }
+
+                        @media (max-width: $mobile-size) {
+                            border-radius: 2em;
+                        }
+
+                        .option-image {
+                            width: calc(100% + .8em);
+                            height: calc(100% + .8em);
+                            display: block;
+                        }
+                    }
+
+                    .subtext {
+                        margin-top: .5em;
+                        height: 2.5em;
+                        font-family: $poppins;
+                        font-size: 1.4em;
+                        line-height: 1.2;
+                        padding: 0 .5em;
+
+                        @media (max-width: $mobile-size) {
+                            font-size: 1.2em;
+                        }
+                    }
+
+                    &.selected {
+                        .boxImg{
+                            border: 0.5em solid $color01;
+                        }
+                    }
+
+                    &:hover {
+                        .boxImg{
+                            border: 0.5em solid $color01;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// FEEDBACKS
+.quiz-modal {
+    display: none;
+    position: relative;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+
+    &.active {
+        display: flex;
+    }
+
+    .modal-content {
+        width: 100%;
+        max-width: 960px;
+        padding: 5em 2em;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        @media (max-width: $tablet-size) {
+            padding: 5em 1.5em;
+        }
+
+        @media (max-width: $mobile-size) {
+            padding: 5em 1em;
+        }
+
+        h4 {
+            font-family: $poppins;
+            font-size: 2em;
+            line-height: 1.2;
+            margin-bottom: .5em;
+            color: $color01;
+            @media (min-width: $big-size) {
+                font-size: 3em;
+            }
+            @media (max-width: $tablet-size) {
+                font-size: 2.5em;
+            }
+            @media (max-width: $mobile-size) {
+                font-size: 2em;
+            }
+        }
+
+        .text {
+            font-family: $poppins;
+        }
+
+        .link {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            margin: 0 auto;
+            color: $black;
+
+            .text {
+                text-decoration: underline;
+            }
+
+            .btn-padrao {
+                font-size: 100%;
+                margin: 2em auto;
+            }
+
+            .boxImgModal {
+                width: 100%;
+                max-width: 960px;
+                aspect-ratio: 1 / 0.58;
+                background-color: #0005;
+                overflow: hidden;
+                position: relative;
+                box-shadow: 0 0 2em #0002;
+                margin-top: .5em;
+                .imgModal {
+                    width: 100%;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    animation: 8s descer infinite linear;
+                }
+                @keyframes descer {
+                    0%, 20% {
+                        top: 0%;
+                    }
+                    20%, 40% {
+                        top: 0%;
+                    }
+                    40%, 60% {
+                        top: -100%;
+                    }
+                    60%, 80% {
+                        top: -200%;
+                    }
+                    80%, 90% {
+                        top: -300%; /* Fica parado aqui de 40% a 70% (3s em 10s) */
+                    }
+                    90%, 95% {
+                        top: -300%;
+                    }
+                    95%, 100% {
+                        top: 0%;
+                    }
+                }
+            }
+        }
+    }
+}

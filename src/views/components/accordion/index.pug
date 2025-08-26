@@ -1,0 +1,10 @@
+mixin accordionComponent(items)
+    .accordionComponent
+        - var groupName = 'accordionGroup_' + Math.floor(Math.random() * 1000000)
+        each item, i in items
+            - var id = groupName + '-' + i
+            .accordion
+                input.accordion-toggle(type="radio" name=groupName id=id)
+                label.accordion-title(for=id)= item.title
+                .accordion-content
+                    != item.bodyAccordion

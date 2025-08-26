@@ -1,0 +1,80 @@
+@use '../styles/variables' as *;
+
+.most_loved_tabs {
+    display: grid;
+    grid: auto / repeat(6, 1fr);
+    width: 95%;
+    max-width: 78.6em;
+    margin: 5em auto;
+
+    input[type=radio] {
+        display: none;
+    }
+
+    .tab {
+        align-items: center;
+        border-radius: 1.5em 1.5em 0 0;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1em 1em 2em;
+        position: relative;
+        text-transform: uppercase;
+        transition: all 0.2s ease-in-out;
+        width: 100%;
+
+        h3 {
+            text-align: center;
+        }
+    }
+
+    [id^=tab]:checked+label {
+        color: #000;
+        background-color: #eee;
+    }
+
+    [id^=tab]:not(:checked)+label:hover {
+        opacity: 0.5;
+    }
+
+    .tabsContent {
+        grid-column: span 6;
+
+        .tabContent {
+            margin-top: -1.5em;
+            align-items: center;
+            background-color: #eee;
+            border-radius: 1.5em;
+            box-sizing: border-box;
+            display: none;
+            padding: 2em;
+            position: relative;
+            width: 100%;
+            z-index: 1;
+
+            img {
+                width: 20em;
+                height: auto;
+                margin-right: 2em;
+            }
+
+            p {
+                color: #000;
+            }
+
+            a {
+                align-items: center;
+                border-radius: 2em;
+                border: .15em solid #000;
+                color: #000;
+                display: flex;
+                justify-content: center;
+                margin-top: 1em;
+                text-decoration: none;
+                width: fit-content;
+                padding: .5em 1em;
+            }
+        }
+    }
+}

@@ -1,0 +1,81 @@
+.accordionComponent * {
+    font-size: 1.05em;
+}
+
+.accordionComponent {
+    width: 95%;
+    max-width: 78.6em;
+    margin: 5em auto;
+
+    .accordion {
+        width: 100%;
+
+        .accordion-toggle {
+            display: none;
+        }
+
+        .accordion-title {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            background: #eee;
+            padding: 0.5em 2.5em 0.5em 1em;
+            border: .15em solid #ccc;
+            // border-bottom: none;
+            border-radius: 1.5em;
+            font-weight: bold;
+            transition: background 0.2s;
+            position: relative;
+
+            &::before {
+                content: '+';
+                position: absolute;
+                right: .5em;
+                transition-duration: .3s;
+                font-size: 1.7em;
+                margin: 0;
+            }
+
+            &:hover {
+                background: #ddd;
+            }
+        }
+
+        // Troca o "+" por "-" quando o radio está checked
+        .accordion-toggle:checked + .accordion-title::before {
+            content: '-';
+            transform: rotate(720deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: 0.25s all ease-in-out;
+            padding: 0 1em;
+            border: .15em solid #ccc;
+            border-top: none;
+            background: #fafafa;
+            opacity: 0;
+            border-radius: 0 0 1.5em 1.5em;
+
+            ul {
+                padding-left: 1em;
+            }
+        }
+
+        .accordion-toggle:checked ~ .accordion-title {
+            border-radius: 1.5em 1.5em 0 0;
+        }
+
+        .accordion-toggle:checked ~ .accordion-content {
+            max-height: 100em;
+            padding: 1em;
+            transition: 0.25s all ease-in-out;
+            opacity: 1;
+        }
+    }
+
+    .accordion + .accordion {
+        margin-top: .5em;
+    }
+}
