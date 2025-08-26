@@ -223,380 +223,376 @@ function atualizarBarraProgresso(quiz, questions, qIndex, force100, animarTexto 
     });
 }
 
-document.querySelectorAll('.buzzfeed-quiz').forEach(function (quiz) {
-    let resultadoAberto = false;
-    let bonusAtiva = false; // FLAG PARA SABER SE A BONUS ESTÁ ATIVA
-    quiz.quizFinalizado = false; // FLAG associada ao elemento quiz
 
-    const quizId = quiz.getAttribute('data-quiz-id') || 'quiz';
-    const respostasKey = `${quizId}_buzzFeedRespostas`;
-    const resultadoKey = `${quizId}_buzzFeedResultado`;
-    const pontuacaoKey = `${quizId}_quizPontuacaoBuzzFeed`;
 
-    const questions = Array.from(quiz.querySelectorAll('.quiz-question'));
-    const temPerguntaBonus = questions.length > 1 && questions[questions.length - 1].classList.contains('bonus');
+const triggers = document.querySelectorAll('.iniciarTeste');
+const quiz = document.querySelector('.quiz');
+const capa = document.querySelector('.capa');
 
-    // Garante que a pergunta bônus está oculta no início
-    questions.forEach((q, i) => {
-        if (q.classList.contains('bonus')) {
-            q.style.display = 'none';
-        }
-    });
+triggers.forEach(btn => {
+    btn.addEventListener('click', function (e) {
+        quiz.classList.remove('hide');
+        capa.classList.add('hide');
 
-    // Inicializa o texto da barra de progresso em 0%
-    quiz.querySelectorAll('.borraProgress .textAvanco').forEach(texto => {
-        texto.textContent = '0%';
-        texto.style.color = '#88593D';
-    });
-
-    let perguntasLiberadas = new Set();
-    perguntasLiberadas.add(0);
-
-    let feedbacksSet = new Set();
-    questions.forEach(q => {
-        q.querySelectorAll('.quiz-option').forEach(opt => {
-            feedbacksSet.add(opt.getAttribute('data-feedback'));
-        });
-    });
-    const pontuacaoBuzzFeed = {};
-    feedbacksSet.forEach(feed => pontuacaoBuzzFeed[feed] = 0);
-
-    localStorage.removeItem(respostasKey);
-    localStorage.removeItem(resultadoKey);
-    localStorage.removeItem(pontuacaoKey);
-
-    const keenSliders = {};
-
-    function inicializarSlider(qIndex) {
-        if (!keenSliders[qIndex]) {
-            const sliderEl = questions[qIndex].querySelector('.quiz-options.keen-slider');
-            if (sliderEl) {
-                keenSliders[qIndex] = new KeenSlider(sliderEl, {
-                    loop: true,
-                    mode: "free",
-                    slides: {
-                        origin: "center",
-                        perView: 4,
-                        spacing: 10,
-                    },
-                    breakpoints: {
-                        "(max-width: 1000px)": {
-                            slides: {
-                                origin: "center",
-                                perView: 1.8,
-                                spacing: 8,
-                            }
-                        }
-                    }
-                }, [navigation]);
-            }
-        }
-    }
-
-    function getEmpatados(pontuacao) {
-        const max = Math.max(...Object.values(pontuacao));
-        return Object.keys(pontuacao).filter(feed => pontuacao[feed] === max);
-    }
-
-    function mostrarPergunta(qIndex, forceShowBonus = false) {
-        questions.forEach((q, i) => {
-            if (q.classList.contains('bonus')) {
-                q.style.display = ((bonusAtiva && qIndex === questions.length - 1) || forceShowBonus) ? 'block' : 'none';
-            } else {
-                if (bonusAtiva) {
-                    if (i === questions.length - 2 && qIndex === i) {
-                        q.style.display = 'block';
-                    } else {
-                        q.style.display = (i === qIndex && qIndex !== questions.length - 1) ? 'block' : 'none';
-                    }
-                } else {
-                    q.style.display = (i === qIndex) ? 'block' : 'none';
-                }
-            }
-        });
-        inicializarSlider(qIndex);
-
-        const titulo = questions[qIndex].querySelector('h3[tabindex="0"]');
-        if (titulo) {
-            setTimeout(() => titulo.focus(), 100);
-        }
-
-        perguntasLiberadas.add(qIndex);
-
-        let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
-        const options = questions[qIndex].querySelectorAll('.quiz-option');
-        if (respostas[qIndex]) {
-            const { optionIndex } = respostas[qIndex];
-            options.forEach((opt, idx) => {
-                if (idx === optionIndex) {
-                    opt.checked = true;
-                    opt.closest('label').classList.add('selected');
-                } else {
-                    opt.checked = false;
-                    opt.closest('label').classList.remove('selected');
-                }
-            });
-        } else {
-            options.forEach(opt => {
-                opt.checked = false;
-                opt.closest('label').classList.remove('selected');
-            });
-        }
-        atualizarNavegacao(qIndex);
-        atualizarBarraProgresso(quiz, questions, qIndex, false, false); // NÃO anima ao navegar
-
-        // Adiciona acessibilidade de teclado para os labels das opções visíveis
-        questions[qIndex].querySelectorAll('.keen-slider__slide[tabindex="0"]').forEach(label => {
-            label.addEventListener('keydown', function(e) {
-                if (e.key === ' ' || e.key === 'Enter') {
-                    const input = label.querySelector('input');
-                    if (input && !input.disabled) {
-                        input.checked = !input.checked;
-                        input.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                    e.preventDefault();
-                }
-            });
-        });
-    }
-
-    function mostrarPerguntaDesempate(pergunta, empatados) {
-        bonusAtiva = true;
-        mostrarPergunta(questions.length - 1);
-        pergunta.querySelectorAll('.quiz-option').forEach(opt => {
-            const feed = opt.getAttribute('data-feedback');
-            if (empatados.includes(feed)) {
-                opt.closest('label').style.display = '';
-            } else {
-                opt.closest('label').style.display = 'none';
-                opt.checked = false;
-                opt.closest('label').classList.remove('selected');
-            }
-        });
-        inicializarSlider(questions.length - 1);
-        atualizarBarraProgresso(quiz, questions, questions.length - 1, false, false);
-    }
-
-    function atualizarNavegacao(qIndex) {
-        let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
-        const prevBtn = questions[qIndex].querySelector('.prev-btn');
-        const nextBtn = questions[qIndex].querySelector('.next-btn');
-        if (prevBtn) {
-            prevBtn.disabled = !(qIndex > 0 && perguntasLiberadas.has(qIndex - 1));
-        }
-        if (nextBtn) {
-            nextBtn.disabled = !(qIndex < questions.length - 1 && perguntasLiberadas.has(qIndex + 1));
-        }
-    }
-
-    questions.forEach((question, qIndex) => {
-        const options = question.querySelectorAll('.quiz-option');
-        const prevBtn = question.querySelector('.prev-btn');
-        const nextBtn = question.querySelector('.next-btn');
-
-        atualizarNavegacao(qIndex);
-
-        options.forEach(opt => {
-            opt.addEventListener('change', function () {
-                options.forEach(o => o.closest('label').classList.remove('selected'));
-                if (opt.checked) {
-                    opt.closest('label').classList.add('selected');
-                }
-
-                const checked = question.querySelector('.quiz-option:checked');
-                if (!checked) return;
-
-                let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
-                if (respostas.length < questions.length) {
-                    respostas = Array(questions.length).fill(null);
-                }
-
-                const optionIndex = Array.from(question.querySelectorAll('.quiz-option')).indexOf(checked);
-                const feedback = checked.getAttribute('data-feedback');
-
-                if (respostas[qIndex] && pontuacaoBuzzFeed.hasOwnProperty(respostas[qIndex].feedback)) {
-                    pontuacaoBuzzFeed[respostas[qIndex].feedback]--;
-                }
-
-                if (pontuacaoBuzzFeed.hasOwnProperty(feedback)) {
-                    pontuacaoBuzzFeed[feedback]++;
-                }
-                respostas[qIndex] = { feedback, optionIndex };
-
-                localStorage.setItem(respostasKey, JSON.stringify(respostas));
-
-                const isBonus = question.classList.contains('bonus');
-                const isLastNormal = qIndex === (temPerguntaBonus ? questions.length - 2 : questions.length - 1);
-
-                if (!isLastNormal && !isBonus) {
-                    question.style.display = 'none';
-                }
-
-                atualizarNavegacao(qIndex);
-                atualizarBarraProgresso(quiz, questions, qIndex, false, true); // ANIMA ao responder
-
-                if (isLastNormal && !isBonus) {
-                    const empatados = getEmpatados(pontuacaoBuzzFeed);
-                    if (temPerguntaBonus && empatados.length > 1) {
-                        mostrarPerguntaDesempate(questions[questions.length - 1], empatados);
-                        return;
-                    } else {
-                        showResult(false);
-                        return;
-                    }
-                }
-
-                if (isBonus) {
-                    options.forEach(opt => {
-                        opt.disabled = true;
-                        opt.closest('label').style.pointerEvents = 'none';
-                    });
-                    showResult(true);
-                    return;
-                }
-
-                if (qIndex + 1 < (temPerguntaBonus ? questions.length - 1 : questions.length)) {
-                    mostrarPergunta(qIndex + 1);
-                }
-            });
-        });
-
-        if (prevBtn) {
-            prevBtn.addEventListener('click', function () {
-                if (qIndex > 0 && perguntasLiberadas.has(qIndex - 1)) {
-                    mostrarPergunta(qIndex - 1);
-                    atualizarBarraProgresso(quiz, questions, qIndex - 1, false, false); // NÃO anima ao navegar
-                }
-            });
-        }
-
-        if (nextBtn) {
-            nextBtn.addEventListener('click', function () {
-                if (qIndex < questions.length - 1 && perguntasLiberadas.has(qIndex + 1)) {
-                    mostrarPergunta(qIndex + 1);
-                    atualizarBarraProgresso(quiz, questions, qIndex + 1, false, false); // NÃO anima ao navegar
-                }
-            });
-        }
-    });
-
-    function showResult(showBonus) {
-        let max = -1, result = '';
-        for (const [key, value] of Object.entries(pontuacaoBuzzFeed)) {
-            if (value > max) {
-                max = value;
-                result = key;
-            }
-        }
-        quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
-        const modal = quiz.querySelector('.quiz-modal.feedback-' + result);
-        if (modal) {
-            modal.style.display = 'flex';
-            setTimeout(() => {
-                modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                // Foca no h4 do feedback/modal
-                const h4 = modal.querySelector('h4');
-                if (h4) h4.setAttribute('tabindex', '-1'); // Garante que pode receber foco
-                if (h4) h4.focus();
-            }, 500);
-        }
-    
-        localStorage.setItem(resultadoKey, result);
-        localStorage.setItem(pontuacaoKey, JSON.stringify(pontuacaoBuzzFeed));
-    
-        resultadoAberto = true;
-        quiz.quizFinalizado = true;
-    
-        questions.forEach(q => {
-            q.querySelectorAll('.quiz-option').forEach(opt => {
-                opt.disabled = true;
-                opt.closest('label').style.pointerEvents = 'none';
-            });
-        });
-    
-        if (showBonus) {
-            mostrarPergunta(questions.length - 1, true);
-        } else {
-            let lastNormal = questions.length - 1;
-            if (questions[lastNormal].classList.contains('bonus')) {
-                lastNormal = questions.length - 2;
-            }
-            mostrarPergunta(lastNormal, false);
-        }
-    
-        // --- TRAVE AQUI, DEPOIS DE mostrarPergunta ---
-        quiz.querySelectorAll('.borraProgress .avanco').forEach(barra => {
-            barra.style.width = '100%';
-        });
-        quiz.querySelectorAll('.borraProgress .textAvanco').forEach(texto => {
-            texto.textContent = '100%';
-            texto.style.color = '#ffffff';
-        });
-    }
-
-    quiz.querySelectorAll('.closeModal').forEach(btn => {
-        btn.addEventListener('click', function () {
-            quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
-            resultadoAberto = false;
-        });
-    });
-
-    quiz.querySelectorAll('.refazer').forEach(btn => {
-        btn.addEventListener('click', function () {
-            localStorage.removeItem(respostasKey);
-            localStorage.removeItem(resultadoKey);
-            localStorage.removeItem(pontuacaoKey);
-
-            Object.keys(pontuacaoBuzzFeed).forEach(feed => pontuacaoBuzzFeed[feed] = 0);
-
-            quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
-
+        document.querySelectorAll('.buzzfeed-quiz').forEach(function (quiz) {
+            let resultadoAberto = false;
+            let bonusAtiva = false; // FLAG PARA SABER SE A BONUS ESTÁ ATIVA
+            quiz.quizFinalizado = false; // FLAG associada ao elemento quiz
+        
+            const quizId = quiz.getAttribute('data-quiz-id') || 'quiz';
+            const respostasKey = `${quizId}_buzzFeedRespostas`;
+            const resultadoKey = `${quizId}_buzzFeedResultado`;
+            const pontuacaoKey = `${quizId}_quizPontuacaoBuzzFeed`;
+        
+            const questions = Array.from(quiz.querySelectorAll('.quiz-question'));
+            const temPerguntaBonus = questions.length > 1 && questions[questions.length - 1].classList.contains('bonus');
+        
+            // Garante que a pergunta bônus está oculta no início
             questions.forEach((q, i) => {
-                q.style.display = (i === 0) ? 'block' : 'none';
-                q.querySelectorAll('.quiz-option').forEach(opt => {
-                    opt.disabled = false;
-                    opt.closest('label').style.pointerEvents = '';
-                });
                 if (q.classList.contains('bonus')) {
                     q.style.display = 'none';
                 }
             });
-
-            perguntasLiberadas = new Set();
+        
+            // Inicializa o texto da barra de progresso em 0%
+            quiz.querySelectorAll('.borraProgress .textAvanco').forEach(texto => {
+                texto.textContent = '0%';
+                texto.style.color = '#88593D';
+            });
+        
+            let perguntasLiberadas = new Set();
             perguntasLiberadas.add(0);
-
-            bonusAtiva = false;
-
-            atualizarNavegacao(0);
-
-            resultadoAberto = false;
-
-            quiz.quizFinalizado = false;
-
-            inicializarSlider(0);
-
+        
+            let feedbacksSet = new Set();
+            questions.forEach(q => {
+                q.querySelectorAll('.quiz-option').forEach(opt => {
+                    feedbacksSet.add(opt.getAttribute('data-feedback'));
+                });
+            });
+            const pontuacaoBuzzFeed = {};
+            feedbacksSet.forEach(feed => pontuacaoBuzzFeed[feed] = 0);
+        
+            localStorage.removeItem(respostasKey);
+            localStorage.removeItem(resultadoKey);
+            localStorage.removeItem(pontuacaoKey);
+        
+            const keenSliders = {};
+        
+            function inicializarSlider(qIndex) {
+                if (!keenSliders[qIndex]) {
+                    const sliderEl = questions[qIndex].querySelector('.quiz-options.keen-slider');
+                    if (sliderEl) {
+                        keenSliders[qIndex] = new KeenSlider(sliderEl, {
+                            loop: true,
+                            mode: "free",
+                            slides: {
+                                origin: "center",
+                                perView: 1.8,
+                                spacing: 10,
+                            },
+                            breakpoints: {
+                                "(max-width: 1000px)": {
+                                    slides: {
+                                        origin: "center",
+                                        perView: 1.8,
+                                        spacing: 8,
+                                    }
+                                }
+                            }
+                        }, [navigation]);
+                    }
+                }
+            }
+        
+            function getEmpatados(pontuacao) {
+                const max = Math.max(...Object.values(pontuacao));
+                return Object.keys(pontuacao).filter(feed => pontuacao[feed] === max);
+            }
+        
+            function mostrarPergunta(qIndex, forceShowBonus = false) {
+                questions.forEach((q, i) => {
+                    if (q.classList.contains('bonus')) {
+                        q.style.display = ((bonusAtiva && qIndex === questions.length - 1) || forceShowBonus) ? 'block' : 'none';
+                    } else {
+                        if (bonusAtiva) {
+                            if (i === questions.length - 2 && qIndex === i) {
+                                q.style.display = 'block';
+                            } else {
+                                q.style.display = (i === qIndex && qIndex !== questions.length - 1) ? 'block' : 'none';
+                            }
+                        } else {
+                            q.style.display = (i === qIndex) ? 'block' : 'none';
+                        }
+                    }
+                });
+                inicializarSlider(qIndex);
+        
+                const titulo = questions[qIndex].querySelector('h3[tabindex="0"]');
+                if (titulo) {
+                    setTimeout(() => titulo.focus(), 100);
+                }
+        
+                perguntasLiberadas.add(qIndex);
+        
+                let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
+                const options = questions[qIndex].querySelectorAll('.quiz-option');
+                if (respostas[qIndex]) {
+                    const { optionIndex } = respostas[qIndex];
+                    options.forEach((opt, idx) => {
+                        if (idx === optionIndex) {
+                            opt.checked = true;
+                            opt.closest('label').classList.add('selected');
+                        } else {
+                            opt.checked = false;
+                            opt.closest('label').classList.remove('selected');
+                        }
+                    });
+                } else {
+                    options.forEach(opt => {
+                        opt.checked = false;
+                        opt.closest('label').classList.remove('selected');
+                    });
+                }
+                atualizarNavegacao(qIndex);
+                atualizarBarraProgresso(quiz, questions, qIndex, false, false); // NÃO anima ao navegar
+        
+                // Adiciona acessibilidade de teclado para os labels das opções visíveis
+                questions[qIndex].querySelectorAll('.keen-slider__slide[tabindex="0"]').forEach(label => {
+                    label.addEventListener('keydown', function(e) {
+                        if (e.key === ' ' || e.key === 'Enter') {
+                            const input = label.querySelector('input');
+                            if (input && !input.disabled) {
+                                input.checked = !input.checked;
+                                input.dispatchEvent(new Event('change', { bubbles: true }));
+                            }
+                            e.preventDefault();
+                        }
+                    });
+                });
+            }
+        
+            function mostrarPerguntaDesempate(pergunta, empatados) {
+                bonusAtiva = true;
+                mostrarPergunta(questions.length - 1);
+                pergunta.querySelectorAll('.quiz-option').forEach(opt => {
+                    const feed = opt.getAttribute('data-feedback');
+                    if (empatados.includes(feed)) {
+                        opt.closest('label').style.display = '';
+                    } else {
+                        opt.closest('label').style.display = 'none';
+                        opt.checked = false;
+                        opt.closest('label').classList.remove('selected');
+                    }
+                });
+                inicializarSlider(questions.length - 1);
+                atualizarBarraProgresso(quiz, questions, questions.length - 1, false, false);
+            }
+        
+            function atualizarNavegacao(qIndex) {
+                let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
+                const prevBtn = questions[qIndex].querySelector('.prev-btn');
+                const nextBtn = questions[qIndex].querySelector('.next-btn');
+                if (prevBtn) {
+                    prevBtn.disabled = !(qIndex > 0 && perguntasLiberadas.has(qIndex - 1));
+                }
+                if (nextBtn) {
+                    nextBtn.disabled = !(qIndex < questions.length - 1 && perguntasLiberadas.has(qIndex + 1));
+                }
+            }
+        
+            questions.forEach((question, qIndex) => {
+                const options = question.querySelectorAll('.quiz-option');
+                const prevBtn = question.querySelector('.prev-btn');
+                const nextBtn = question.querySelector('.next-btn');
+        
+                atualizarNavegacao(qIndex);
+        
+                options.forEach(opt => {
+                    opt.addEventListener('change', function () {
+                        options.forEach(o => o.closest('label').classList.remove('selected'));
+                        if (opt.checked) {
+                            opt.closest('label').classList.add('selected');
+                        }
+        
+                        const checked = question.querySelector('.quiz-option:checked');
+                        if (!checked) return;
+        
+                        let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
+                        if (respostas.length < questions.length) {
+                            respostas = Array(questions.length).fill(null);
+                        }
+        
+                        const optionIndex = Array.from(question.querySelectorAll('.quiz-option')).indexOf(checked);
+                        const feedback = checked.getAttribute('data-feedback');
+        
+                        if (respostas[qIndex] && pontuacaoBuzzFeed.hasOwnProperty(respostas[qIndex].feedback)) {
+                            pontuacaoBuzzFeed[respostas[qIndex].feedback]--;
+                        }
+        
+                        if (pontuacaoBuzzFeed.hasOwnProperty(feedback)) {
+                            pontuacaoBuzzFeed[feedback]++;
+                        }
+                        respostas[qIndex] = { feedback, optionIndex };
+        
+                        localStorage.setItem(respostasKey, JSON.stringify(respostas));
+        
+                        const isBonus = question.classList.contains('bonus');
+                        const isLastNormal = qIndex === (temPerguntaBonus ? questions.length - 2 : questions.length - 1);
+        
+                        if (!isLastNormal && !isBonus) {
+                            question.style.display = 'none';
+                        }
+        
+                        atualizarNavegacao(qIndex);
+                        atualizarBarraProgresso(quiz, questions, qIndex, false, true); // ANIMA ao responder
+        
+                        if (isLastNormal && !isBonus) {
+                            const empatados = getEmpatados(pontuacaoBuzzFeed);
+                            if (temPerguntaBonus && empatados.length > 1) {
+                                mostrarPerguntaDesempate(questions[questions.length - 1], empatados);
+                                return;
+                            } else {
+                                showResult(false);
+                                return;
+                            }
+                        }
+        
+                        if (isBonus) {
+                            options.forEach(opt => {
+                                opt.disabled = true;
+                                opt.closest('label').style.pointerEvents = 'none';
+                            });
+                            showResult(true);
+                            return;
+                        }
+        
+                        if (qIndex + 1 < (temPerguntaBonus ? questions.length - 1 : questions.length)) {
+                            mostrarPergunta(qIndex + 1);
+                        }
+                    });
+                });
+        
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function () {
+                        if (qIndex > 0 && perguntasLiberadas.has(qIndex - 1)) {
+                            mostrarPergunta(qIndex - 1);
+                            atualizarBarraProgresso(quiz, questions, qIndex - 1, false, false); // NÃO anima ao navegar
+                        }
+                    });
+                }
+        
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function () {
+                        if (qIndex < questions.length - 1 && perguntasLiberadas.has(qIndex + 1)) {
+                            mostrarPergunta(qIndex + 1);
+                            atualizarBarraProgresso(quiz, questions, qIndex + 1, false, false); // NÃO anima ao navegar
+                        }
+                    });
+                }
+            });
+        
+            function showResult(showBonus) {
+                let max = -1, result = '';
+                for (const [key, value] of Object.entries(pontuacaoBuzzFeed)) {
+                    if (value > max) {
+                        max = value;
+                        result = key;
+                    }
+                }
+                quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
+                const modal = quiz.querySelector('.quiz-modal.feedback-' + result);
+                if (modal) {
+                    modal.style.display = 'flex';
+                    setTimeout(() => {
+                        modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+                        // Foca no h4 do feedback/modal
+                        const h4 = modal.querySelector('h4');
+                        if (h4) h4.setAttribute('tabindex', '-1'); // Garante que pode receber foco
+                        if (h4) h4.focus();
+                    }, 500);
+                }
+            
+                localStorage.setItem(resultadoKey, result);
+                localStorage.setItem(pontuacaoKey, JSON.stringify(pontuacaoBuzzFeed));
+            
+                resultadoAberto = true;
+                quiz.quizFinalizado = true;
+            
+                questions.forEach(q => {
+                    q.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.disabled = true;
+                        opt.closest('label').style.pointerEvents = 'none';
+                    });
+                });
+            
+                if (showBonus) {
+                    mostrarPergunta(questions.length - 1, true);
+                } else {
+                    let lastNormal = questions.length - 1;
+                    if (questions[lastNormal].classList.contains('bonus')) {
+                        lastNormal = questions.length - 2;
+                    }
+                    mostrarPergunta(lastNormal, false);
+                }
+            
+                // --- TRAVE AQUI, DEPOIS DE mostrarPergunta ---
+                quiz.querySelectorAll('.borraProgress .avanco').forEach(barra => {
+                    barra.style.width = '100%';
+                });
+                quiz.querySelectorAll('.borraProgress .textAvanco').forEach(texto => {
+                    texto.textContent = '100%';
+                    texto.style.color = '#ffffff';
+                });
+            }
+        
+            quiz.querySelectorAll('.closeModal').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
+                    resultadoAberto = false;
+                });
+            });
+        
+            quiz.querySelectorAll('.refazer').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    localStorage.removeItem(respostasKey);
+                    localStorage.removeItem(resultadoKey);
+                    localStorage.removeItem(pontuacaoKey);
+        
+                    Object.keys(pontuacaoBuzzFeed).forEach(feed => pontuacaoBuzzFeed[feed] = 0);
+        
+                    quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
+        
+                    questions.forEach((q, i) => {
+                        q.style.display = (i === 0) ? 'block' : 'none';
+                        q.querySelectorAll('.quiz-option').forEach(opt => {
+                            opt.disabled = false;
+                            opt.closest('label').style.pointerEvents = '';
+                        });
+                        if (q.classList.contains('bonus')) {
+                            q.style.display = 'none';
+                        }
+                    });
+        
+                    perguntasLiberadas = new Set();
+                    perguntasLiberadas.add(0);
+        
+                    bonusAtiva = false;
+        
+                    atualizarNavegacao(0);
+        
+                    resultadoAberto = false;
+        
+                    quiz.quizFinalizado = false;
+        
+                    inicializarSlider(0);
+        
+                    atualizarBarraProgresso(quiz, questions, 0, false, false);
+                });
+            });
+        
             atualizarBarraProgresso(quiz, questions, 0, false, false);
+            mostrarPergunta(0);
         });
     });
-
-    atualizarBarraProgresso(quiz, questions, 0, false, false);
-    mostrarPergunta(0);
-});
-
-document.querySelectorAll('.btn-estacao').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-        dataLayer.push({
-            'event': 'select_content_ga4',
-            'content_type': 'click - colorimetria',
-            'content_id': btn.getAttribute('data-content-id')
-        });
-    });
-});
-
-dataLayer.push({
-    'event': `page_view_ga4`,
-    'page_path':  window.location.pathname,
-    'page_location': window.location.href,
-    'page_title': `ecommerce - content - ${document.title}`
 });

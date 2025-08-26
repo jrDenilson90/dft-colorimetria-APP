@@ -7,14 +7,20 @@ html {
     display: flex;
     justify-content: center;
     align-items: center;
-    // background-color: #0005;
     width: 100vw;
     height: 100%;
     position: relative;
 }
 
+.hide {
+    opacity: 0;
+    width: .1px !important;
+    height: .1px !important;
+    overflow: hidden;
+}
+
 .close-button {
-    position: absolute;
+    position: fixed;
     top: .8em;
     right: .8em;
     width: 32px;
@@ -47,8 +53,8 @@ html {
 .dafitiStructure {
     scroll-behavior: smooth;
     background-color: #ffffff;
-    width: 90vw;
     max-width: 650px;
+    width: 90vw;
     height: 85vh;
     max-height: 900px;
     box-shadow: 0.5em 0.5em 1em 0.5em rgba(0, 0, 0, 0.2);
@@ -62,8 +68,8 @@ html {
     width: 100%;
     // min-height: 680px;
     // height: calc(100vh - 136px);
-    height: 90%;
-    max-height: 1080px;
+    height: 100%;
+    max-height: 1000px;
     overflow: hidden;
     position: relative;
     font-family: $poppins;
@@ -74,14 +80,15 @@ html {
     align-items: center;
 
     .flexTitle {
-        position: absolute;
+        // position: absolute;
+        margin-top: 8em;
         bottom: 73%;
         display: flex;
         gap: 1em;
         align-items: center;
 
         @media (max-width: 1000px) {
-            margin-top: 15em;
+            margin-top: 12em;
         }
         @media (max-width: $tablet-size) {
             position: initial;
@@ -93,15 +100,12 @@ html {
             margin: .07em 0 0;
             line-height: 1;
             font-weight: 700;
-            font-size: 13em;
+            font-size: 7em;
 
             span {
                 color: $black;
             }
             
-            @media (min-width: $big-size) {
-                font-size: 17em;
-            }
             @media (max-width: 1000px) {
                 font-size: 7em;
             }
@@ -117,10 +121,7 @@ html {
         }
         
         img {
-            height: 5em;
-            @media (min-width: $big-size) {
-                height: 8em;
-            }
+            height: 4em;
             @media (max-width: 1000px) {
                 height: 3.7em;
             }
@@ -137,19 +138,17 @@ html {
     }
 
     .boxLinkSeo {
-        position: absolute;
+        // position: absolute;
         left: 4em;
-        width: 17em;
+        width: 30em;
         z-index: 1;
-        @media (min-width: $big-size) {
-            width: 25em;
-        }
+        text-align: center;
+        
         @media (max-width: $tablet-size) {
             position: initial;
             left: initial;
             width: 50%;
             margin-top: 2em;
-            text-align: center;
         }
         @media (max-width: $mobile-size) {
             width: 80%;
@@ -159,47 +158,10 @@ html {
             font-family: $poppins;
             line-height: 1.5;
         }
-        
-        .linkSeo {
-            margin-top: .5em;
-            color: $black;
-            cursor: pointer;
-            text-decoration: underline;
-
-            @media (max-width: $tablet-size) {
-                color: $white;
-                position: absolute;
-                z-index: 1;
-                bottom: 1em;
-                right: 2em;
-            }
-
-            p {
-                margin: .5em 0 0;
-                @media (max-width: $tablet-size) {
-                    color: $white;
-                    text-shadow: .1em .1em .1em #0005;
-                }
-
-                b {
-                    font-weight: 700;
-                }
-            }
-        }
     }
 
     .btn-padrao {
-        position: absolute;
-        right: 4em;
-        bottom: 3em;
-        z-index: 1;
-
-        @media (max-width: $tablet-size) {
-            position: relative;
-            right: initial;
-            bottom: initial;
-            margin-top: 3em;
-        }
+        margin-top: 3em;
     }
 
     .personas {
@@ -212,7 +174,6 @@ html {
 
         @media (max-width: $tablet-size) {
             width: 140%;
-            // position: relative;
             margin-top: 2em;
         }
 
@@ -222,507 +183,12 @@ html {
     }
 }
 
-// DAQUI PARA BAIXO SEO
-.sec1 {
-    background-color: #F8F2EF;
-    .flex {
-        display: flex;
-        align-items: center;
-        gap: 3em;
-        padding: 7em 10em;
-        @media (max-width: $tablet-size) {
-            flex-direction: column;
-            padding: 5em;
-        }
-        @media (max-width: $mobile-size) {
-            padding: 5em 2em;
-        }
-
-        h2 {
-            font-family: $poppins;
-            font-size: 4.5em;
-            line-height: 1.2;
-            margin-bottom: .5em;
-            font-weight: 500;
-            @media (max-width: $tablet-size) {
-                font-size: 3.5em;
-            }
-            @media (min-width: $big-size) {
-                font-size: 6em;
-            }
-            @media (max-width: $mobile-size) {
-                font-size: 2.2em;
-            }
-            span {
-                color: #6F4932;
-                font-weight: 700;
-            }
-        }
-
-        .left {
-            width: 60%;
-            @media (max-width: $tablet-size) {
-                width: 100%;
-            }
-        }
-
-        .right {
-            width: 40%;
-            @media (max-width: $tablet-size) {
-                width: 70%;
-            }
-            @media (max-width: $mobile-size) {
-                width: 100%;
-            }
-            img {
-                width: 100%;
-                filter: drop-shadow(.5em .5em .5em #0003);
-            }
-        }
-    }
-}
-
-.sec2 {
-    background-color: #88593D;
-    .flex {
-        display: flex;
-        gap: 7em;
-        padding: 7em 10em;
-        @media (max-width: $tablet-size) {
-            flex-direction: column;
-            padding: 5em;
-            gap: 3em;
-        }
-        @media (max-width: $mobile-size) {
-            padding: 5em 2em;
-        }
-
-        h3 {
-            font-family: $poppins;
-            font-weight: 500;
-            font-size: 2em;
-            line-height: 1.2;
-            color: $white;
-            margin-bottom: .5em;
-            text-align: center;
-            @media (min-width: $big-size) {
-                font-size: 2.8em;
-            }
-            @media (max-width: $tablet-size) {
-                font-size: 2.5em;
-            }
-            @media (max-width: $mobile-size) {
-                font-size: 2em;
-            }
-        }
-        
-        .text {
-            text-align: center;
-            color: $white;
-        }
-
-        .left {
-            width: 50%;
-            @media (max-width: $tablet-size) {
-                width: 100%;
-            }
-        }
-
-        .right {
-            width: 50%;
-            @media (max-width: $tablet-size) {
-                width: 100%;
-            }
-        }
-    }
-}
-
-.sec3 {
-    background-color: #F8F2EF;
-    padding: 7em 10em;
-    @media (max-width: $tablet-size) {
-        flex-direction: column;
-        padding: 5em;
-    }
-    @media (max-width: $mobile-size) {
-        padding: 5em 2em;
-    }
-
-    h4 {
-        font-family: $poppins;
-        font-size: 3em;
-        color: $color01;
-        margin-bottom: .5em;
-        text-align: center;
-        font-weight: 500;
-        line-height: 1;
-    }
-    
-    .text {
-        text-align: center;
-    }
-}
-
-.sec4 {
-    background-color: #E6D5C8;
-    padding: 2em 0;
-    padding: 7em 10em;
-    @media (max-width: $tablet-size) {
-        padding: 5em;
-    }
-    @media (max-width: $mobile-size) {
-        padding: 5em 2em;
-    }
-    .table {
-        width: auto;
-        overflow: auto;
-        font-family: $poppins;
-        table {
-            width: max-content;
-            border: none;
-            margin: 0 auto;
-            border-collapse: collapse;
-    
-            thead {
-                border-bottom: .15em solid $color01;
-                th {
-                    width: 10em;
-                    border: none;
-                    color: $color01;
-                    padding: .3em 0;
-                    text-align: center;
-                    border-right: .05em solid #88593D;
-                    font-weight: 700;
-                    font-family: $poppins;
-                }
-                .noBorder {
-                    border-right: none;
-                }
-            }
-    
-            tbody {
-                tr {
-                    border-bottom: .05em solid #88593D;
-                    td {
-                        border: none;
-                        text-align: center;
-                        padding: .3em 0;
-                        border-right: .05em solid #88593D;
-                        font-family: $poppins;
-                    }
-                    .noBorder {
-                        border-right: none;
-                    }
-                }
-            }
-        }
-    }
-}
-
-.sec5 {
-    background-color: #F8F2EF;
-    padding: 7em 10em;
-    @media (max-width: $tablet-size) {
-        padding: 5em;
-    }
-    @media (max-width: $mobile-size) {
-        padding: 5em 2em;
-    }
-
-    .text {
-        text-align: center;
-        font-family: $poppins;
-    }
-
-    .flex {
-        display: flex;
-        align-items: center;
-        margin: 5em auto 8em;
-        @media (max-width: $tablet-size) {
-            flex-direction: column;
-        }
-
-        .left {
-            width: 85%;
-            @media (max-width: $tablet-size)  {
-                width: 100%;
-            }
-            h4 {
-                font-family: $poppins;
-                font-size: 4.3em;
-                text-align: center;
-                line-height: 1;
-                font-weight: 500;
-                @media (min-width: $big-size)  {
-                    font-size: 6em;
-                }
-                @media (max-width: $tablet-size)  {
-                    font-size: 4.4em;
-                    margin-bottom: 1em;
-                }
-                @media (max-width: $mobile-size)  {
-                    font-size: 3.7em;
-                }
-                
-                b {
-                    color: $color01;
-                    font-size: 1.6em;
-                    font-weight: 700;
-                    @media (max-width: $tablet-size)  {
-                        font-size: 1.1em;
-                    }
-                }
-            }
-        }
-
-        .right {
-            width: 15%;
-            @media (max-width: $tablet-size)  {
-                width: 100%;
-            }
-            ul {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                @media (max-width: $tablet-size)  {
-                    align-items: center;
-                    margin: 2em 0 0;
-                }
-                li {
-                    text-align: right;
-                    width: fit-content;
-                    font-style: italic;
-                    color: $color01;
-                    line-height: 1.5;
-                    font-size: 1.6em;
-                    list-style: initial !important;
-                    @media (min-width: $big-size) {
-                        font-size: 2.2em;
-                    }
-                    h5 {
-                        font-weight: 400;
-                        font-family: $poppins;
-                    }
-                }
-            }
-        }
-    }
-}
-
-.sec6 {
-    background-color: #F8F2EF;
-    padding: 0em 10em 7em;
-    @media (max-width: $tablet-size) {
-        padding: 0 5em 5em;
-    }
-    @media (max-width: $mobile-size) {
-        padding: 0 2em 5em;
-    }
-
-    .line {
-        width: 40em;
-        max-width: 90%;
-        height: .1em;
-        background-color: #6F4932;
-        margin: 0 auto 7em;
-        position: relative;
-        display: flex;
-        align-items: center;
-        @media (min-width: $big-size) {
-            width: 50em;
-            height: .2em;
-        }
-        &::before,
-        &::after {
-            content: '';
-            width: 1em;
-            height: 1em;
-            background-color: $color01;
-            border-radius: 100%;
-            position: absolute;
-            left: -.5em;
-        }
-        &::after {
-            left: auto;
-            right: -.5em;
-        }
-    }
-
-    h3 {
-        font-size: 3em;
-        text-align: center;
-        font-family: $poppins;
-        font-weight: 500;
-        line-height: 1;
-        b {
-            color: $color01;
-            font-weight: 700;
-        }
-    }
-
-    .text {
-        font-family: $poppins;
-        text-align: center;
-    }
-            
-    ol {
-        max-width: 50em;
-        margin: 8em auto;
-        list-style: none;
-        counter-reset: custom-counter;
-        padding-left: 0;
-        @media (min-width: $big-size) {
-            max-width: 70em;
-        }
-        @media (max-width: $tablet-size) {
-            max-width: 100%;
-        }
-        li {
-            counter-increment: custom-counter;
-            position: relative;
-            padding-left: 6em;
-            display: flex;
-            align-items: center;
-            &::before {
-                content: counter(custom-counter);
-                font-size: 1.8em;
-                position: absolute;
-                left: 0;
-                width: 2em;
-                height: 2em;
-                color: #6F4932;
-                border-radius: 50%;
-                border: solid .2em #6F4932;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 500;
-                font-family: $poppins;
-            }
-
-            h5 {
-                text-align: left !important;
-                line-height: 1.2;
-                
-            }
-        }
-
-        li + li {
-            margin-top: 3em;
-        }
-    }
-}
-
-.sec7 {
-    background-color: #6F4932;
-    .flex {
-        display: flex;
-        gap: 7em;
-        padding: 7em 10em;
-        @media (max-width: $tablet-size) {
-            flex-direction: column;
-            padding: 5em;
-            gap: 4em;
-        }
-        @media (max-width: $mobile-size) {
-            padding: 5em 2em;
-        }
-
-        h2,
-        h3 {
-            font-family: $poppins;
-            font-weight: 700;
-            font-size: 2em;
-            line-height: 1.2;
-            color: $white;
-            margin-bottom: .5em;
-            text-align: center;
-            @media (min-width: $big-size) {
-                font-size: 2.8em;
-            }
-            @media (max-width: $tablet-size) {
-                font-size: 2.5em;
-            }
-            @media (max-width: $mobile-size) {
-                font-size: 2em;
-            }
-        }
-        
-        .text {
-            text-align: center;
-            color: $white;
-        }
-
-        .left {
-            width: 50%;
-            @media (max-width: $tablet-size) {
-                width: 100%;
-            }
-        }
-
-        .right {
-            width: 50%;
-            @media (max-width: $tablet-size) {
-                width: 100%;
-            }
-        }
-    }
-}
-
-.sec8 {
-    background-color: #F8F2EF;
-    padding: 7em 10em;
-    @media (max-width: $tablet-size) {
-        padding: 5em;
-    }
-
-    .flex {
-        display: grid;
-        grid-template-areas: 'A B'
-                             'C D';
-        justify-content: center;
-        gap: 5em;
-        margin: 0 auto;
-        @media (max-width: $tablet-size) {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3em;
-        }
-        a {
-            max-width: 30em;
-            color: $black;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-
-            &:nth-child(1) {
-                grid-area: A;
-            }
-            &:nth-child(2) {
-                grid-area: B;
-            }
-            &:nth-child(3) {
-                grid-area: C;
-            }
-            &:nth-child(4) {
-                grid-area: D;
-            }
-
-            @media (min-width: $big-size) {
-                max-width: 45em;
-            }
-
-            img {
-                width: 100%;
-            }
-
-            .text {
-                font-family: $poppins;
-                line-height: 1.1;
-                text-align: center;
-                margin-top: .5em;
-            }
-        }
+.quiz {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    .containerBuzzFeed {
+        width: 100%;
     }
 }

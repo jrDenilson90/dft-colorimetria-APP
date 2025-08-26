@@ -2,7 +2,9 @@
 
 .buzzfeed-quiz {
     width: 100%;
+    // min-height: 100%;
     margin: 0 auto;
+    padding: 5em 0;
 
     // Garante que só a pergunta ativa aparece
     .quiz-question {
@@ -40,15 +42,15 @@
             }
     
             .subtext {
-                font-size: 1.5em;
+                font-size: 1.2em;
                 @media (min-width: $big-size) {
-                    font-size: 1.9em;
-                }
-                @media (max-width: $tablet-size) {
                     font-size: 1.7em;
                 }
+                @media (max-width: $tablet-size) {
+                    font-size: 1.5em;
+                }
                 @media (max-width: $mobile-size) {
-                    font-size: 1.3em;
+                    font-size: 1.2em;
                 }
             }
         }
@@ -275,14 +277,28 @@
 
 // FEEDBACKS
 .quiz-modal {
+    background-color: #fff;
     display: none;
-    position: relative;
+    position: absolute;
+    z-index: 2;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     align-items: center;
     justify-content: center;
+    animation: anima .3s linear;
+
+    @keyframes anima {
+        0% {
+            opacity: 0;
+            transform: scale(.1);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 
     &.active {
         display: flex;
@@ -290,13 +306,17 @@
 
     .modal-content {
         width: 100%;
-        max-width: 960px;
+        height: 100%;
+        // max-width: 960px;
         padding: 5em 2em;
         text-align: center;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        position: absolute;
+        top: 0;
+        left: 0;
 
         @media (max-width: $tablet-size) {
             padding: 5em 1.5em;
