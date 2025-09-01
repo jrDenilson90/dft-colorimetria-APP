@@ -1,3 +1,53 @@
+// BRAZE
+window.addEventListener('ab.BridgeReady', function() {
+    // brazeBridge.getUser().setCustomUserAttribute("favorite color", "blue");
+
+    var bridge = window.braze || window.brazeBridge || window.appboyBridge;
+
+    function track(eventName) {
+        try { bridge && bridge.logCustomEvent && bridge.logCustomEvent(eventName); } catch (e) { }
+    }
+
+    function closeMsg() {
+        try { bridge && bridge.closeMessage && bridge.closeMessage(); } catch (e) { }
+    }
+
+    function wireHandlers() {
+        var btnIniciarTeste = document.querySelector('.iniciarTeste');
+        var feedbacksViews = document.querySelectorAll('[data-content-id]');
+
+        if (btnIniciarTeste) {
+            btnIniciarTeste.addEventListener('click', function (e) {
+                track('iniciou_teste_colorimetria');
+            });
+        }
+
+        feedbacksViews.forEach(function (el) {
+            el.addEventListener('click', function (e) {
+                var raw = el.getAttribute('data-content-id') || '';
+                var eventName = raw.toLowerCase().replace(/[^\w]+/g, '_');
+                track(eventName);
+
+                if (el.tagName === 'A' && el.href) {
+                    e.preventDefault();
+                    // opcional: pequeno delay para garantir envio antes de fechar/navegar
+                    setTimeout(function () {
+                        try { window.location = el.href; } catch (e) { }
+                        closeMsg();
+                    }, 50);
+                } else {
+                    closeMsg();
+                }
+            });
+        });
+    }
+
+    // View (opcional)
+    // try { bridge && bridge.logCustomEvent && bridge.logCustomEvent('iam_feedback_view'); } catch (e) { }
+
+    wireHandlers();
+});
+
 // Função para marcar o slide central e vizinhos
 function marcarSlides(slider) {
     const slides = Array.from(slider.container.querySelectorAll('.keen-slider__slide'));
@@ -171,7 +221,7 @@ function atualizarBarraProgresso(quiz, questions, qIndex, force100, animarTexto 
 
     const temPerguntaBonus = questions.length > 1 && questions[questions.length - 1].classList.contains('bonus');
     let totalPerguntas = temPerguntaBonus ? questions.length - 1 : questions.length;
-    
+
     if (temPerguntaBonus && qIndex === questions.length - 1) {
         totalPerguntas = questions.length;
     }
@@ -210,7 +260,7 @@ function atualizarBarraProgresso(quiz, questions, qIndex, force100, animarTexto 
     quiz.querySelectorAll('.borraProgress .avanco').forEach(barra => {
         animarBarraProgresso(barra, percent);
     });
-    
+
     quiz.querySelectorAll('.borraProgress .textAvanco').forEach(texto => {
         if (animarTexto) {
             animarTextoProgresso(texto, percent);
@@ -222,8 +272,6 @@ function atualizarBarraProgresso(quiz, questions, qIndex, force100, animarTexto 
         }
     });
 }
-
-
 
 const triggers = document.querySelectorAll('.iniciarTeste');
 const quiz = document.querySelector('.quiz');
@@ -238,31 +286,31 @@ triggers.forEach(btn => {
             let resultadoAberto = false;
             let bonusAtiva = false; // FLAG PARA SABER SE A BONUS ESTÁ ATIVA
             quiz.quizFinalizado = false; // FLAG associada ao elemento quiz
-        
+
             const quizId = quiz.getAttribute('data-quiz-id') || 'quiz';
             const respostasKey = `${quizId}_buzzFeedRespostas`;
             const resultadoKey = `${quizId}_buzzFeedResultado`;
             const pontuacaoKey = `${quizId}_quizPontuacaoBuzzFeed`;
-        
+
             const questions = Array.from(quiz.querySelectorAll('.quiz-question'));
             const temPerguntaBonus = questions.length > 1 && questions[questions.length - 1].classList.contains('bonus');
-        
+
             // Garante que a pergunta bônus está oculta no início
             questions.forEach((q, i) => {
                 if (q.classList.contains('bonus')) {
                     q.style.display = 'none';
                 }
             });
-        
+
             // Inicializa o texto da barra de progresso em 0%
             quiz.querySelectorAll('.borraProgress .textAvanco').forEach(texto => {
                 texto.textContent = '0%';
                 texto.style.color = '#88593D';
             });
-        
+
             let perguntasLiberadas = new Set();
             perguntasLiberadas.add(0);
-        
+
             let feedbacksSet = new Set();
             questions.forEach(q => {
                 q.querySelectorAll('.quiz-option').forEach(opt => {
@@ -271,13 +319,13 @@ triggers.forEach(btn => {
             });
             const pontuacaoBuzzFeed = {};
             feedbacksSet.forEach(feed => pontuacaoBuzzFeed[feed] = 0);
-        
+
             localStorage.removeItem(respostasKey);
             localStorage.removeItem(resultadoKey);
             localStorage.removeItem(pontuacaoKey);
-        
+
             const keenSliders = {};
-        
+
             function inicializarSlider(qIndex) {
                 if (!keenSliders[qIndex]) {
                     const sliderEl = questions[qIndex].querySelector('.quiz-options.keen-slider');
@@ -303,12 +351,12 @@ triggers.forEach(btn => {
                     }
                 }
             }
-        
+
             function getEmpatados(pontuacao) {
                 const max = Math.max(...Object.values(pontuacao));
                 return Object.keys(pontuacao).filter(feed => pontuacao[feed] === max);
             }
-        
+
             function mostrarPergunta(qIndex, forceShowBonus = false) {
                 questions.forEach((q, i) => {
                     if (q.classList.contains('bonus')) {
@@ -326,14 +374,14 @@ triggers.forEach(btn => {
                     }
                 });
                 inicializarSlider(qIndex);
-        
+
                 const titulo = questions[qIndex].querySelector('h3[tabindex="0"]');
                 if (titulo) {
                     setTimeout(() => titulo.focus(), 100);
                 }
-        
+
                 perguntasLiberadas.add(qIndex);
-        
+
                 let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
                 const options = questions[qIndex].querySelectorAll('.quiz-option');
                 if (respostas[qIndex]) {
@@ -355,10 +403,10 @@ triggers.forEach(btn => {
                 }
                 atualizarNavegacao(qIndex);
                 atualizarBarraProgresso(quiz, questions, qIndex, false, false); // NÃO anima ao navegar
-        
+
                 // Adiciona acessibilidade de teclado para os labels das opções visíveis
                 questions[qIndex].querySelectorAll('.keen-slider__slide[tabindex="0"]').forEach(label => {
-                    label.addEventListener('keydown', function(e) {
+                    label.addEventListener('keydown', function (e) {
                         if (e.key === ' ' || e.key === 'Enter') {
                             const input = label.querySelector('input');
                             if (input && !input.disabled) {
@@ -370,7 +418,7 @@ triggers.forEach(btn => {
                     });
                 });
             }
-        
+
             function mostrarPerguntaDesempate(pergunta, empatados) {
                 bonusAtiva = true;
                 mostrarPergunta(questions.length - 1);
@@ -387,7 +435,7 @@ triggers.forEach(btn => {
                 inicializarSlider(questions.length - 1);
                 atualizarBarraProgresso(quiz, questions, questions.length - 1, false, false);
             }
-        
+
             function atualizarNavegacao(qIndex) {
                 let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
                 const prevBtn = questions[qIndex].querySelector('.prev-btn');
@@ -399,53 +447,53 @@ triggers.forEach(btn => {
                     nextBtn.disabled = !(qIndex < questions.length - 1 && perguntasLiberadas.has(qIndex + 1));
                 }
             }
-        
+
             questions.forEach((question, qIndex) => {
                 const options = question.querySelectorAll('.quiz-option');
                 const prevBtn = question.querySelector('.prev-btn');
                 const nextBtn = question.querySelector('.next-btn');
-        
+
                 atualizarNavegacao(qIndex);
-        
+
                 options.forEach(opt => {
                     opt.addEventListener('change', function () {
                         options.forEach(o => o.closest('label').classList.remove('selected'));
                         if (opt.checked) {
                             opt.closest('label').classList.add('selected');
                         }
-        
+
                         const checked = question.querySelector('.quiz-option:checked');
                         if (!checked) return;
-        
+
                         let respostas = JSON.parse(localStorage.getItem(respostasKey) || '[]');
                         if (respostas.length < questions.length) {
                             respostas = Array(questions.length).fill(null);
                         }
-        
+
                         const optionIndex = Array.from(question.querySelectorAll('.quiz-option')).indexOf(checked);
                         const feedback = checked.getAttribute('data-feedback');
-        
+
                         if (respostas[qIndex] && pontuacaoBuzzFeed.hasOwnProperty(respostas[qIndex].feedback)) {
                             pontuacaoBuzzFeed[respostas[qIndex].feedback]--;
                         }
-        
+
                         if (pontuacaoBuzzFeed.hasOwnProperty(feedback)) {
                             pontuacaoBuzzFeed[feedback]++;
                         }
                         respostas[qIndex] = { feedback, optionIndex };
-        
+
                         localStorage.setItem(respostasKey, JSON.stringify(respostas));
-        
+
                         const isBonus = question.classList.contains('bonus');
                         const isLastNormal = qIndex === (temPerguntaBonus ? questions.length - 2 : questions.length - 1);
-        
+
                         if (!isLastNormal && !isBonus) {
                             question.style.display = 'none';
                         }
-        
+
                         atualizarNavegacao(qIndex);
                         atualizarBarraProgresso(quiz, questions, qIndex, false, true); // ANIMA ao responder
-        
+
                         if (isLastNormal && !isBonus) {
                             const empatados = getEmpatados(pontuacaoBuzzFeed);
                             if (temPerguntaBonus && empatados.length > 1) {
@@ -456,7 +504,7 @@ triggers.forEach(btn => {
                                 return;
                             }
                         }
-        
+
                         if (isBonus) {
                             options.forEach(opt => {
                                 opt.disabled = true;
@@ -465,13 +513,13 @@ triggers.forEach(btn => {
                             showResult(true);
                             return;
                         }
-        
+
                         if (qIndex + 1 < (temPerguntaBonus ? questions.length - 1 : questions.length)) {
                             mostrarPergunta(qIndex + 1);
                         }
                     });
                 });
-        
+
                 if (prevBtn) {
                     prevBtn.addEventListener('click', function () {
                         if (qIndex > 0 && perguntasLiberadas.has(qIndex - 1)) {
@@ -480,7 +528,7 @@ triggers.forEach(btn => {
                         }
                     });
                 }
-        
+
                 if (nextBtn) {
                     nextBtn.addEventListener('click', function () {
                         if (qIndex < questions.length - 1 && perguntasLiberadas.has(qIndex + 1)) {
@@ -490,7 +538,7 @@ triggers.forEach(btn => {
                     });
                 }
             });
-        
+
             function showResult(showBonus) {
                 let max = -1, result = '';
                 for (const [key, value] of Object.entries(pontuacaoBuzzFeed)) {
@@ -499,33 +547,34 @@ triggers.forEach(btn => {
                         result = key;
                     }
                 }
+
                 quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
                 const modal = quiz.querySelector('.quiz-modal.feedback-' + result);
                 if (modal) {
                     modal.style.display = 'flex';
                     setTimeout(() => {
                         modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
+
                         // Foca no h4 do feedback/modal
                         const h4 = modal.querySelector('h4');
                         if (h4) h4.setAttribute('tabindex', '-1'); // Garante que pode receber foco
                         if (h4) h4.focus();
                     }, 500);
                 }
-            
+
                 localStorage.setItem(resultadoKey, result);
                 localStorage.setItem(pontuacaoKey, JSON.stringify(pontuacaoBuzzFeed));
-            
+
                 resultadoAberto = true;
                 quiz.quizFinalizado = true;
-            
+
                 questions.forEach(q => {
                     q.querySelectorAll('.quiz-option').forEach(opt => {
                         opt.disabled = true;
                         opt.closest('label').style.pointerEvents = 'none';
                     });
                 });
-            
+
                 if (showBonus) {
                     mostrarPergunta(questions.length - 1, true);
                 } else {
@@ -535,7 +584,7 @@ triggers.forEach(btn => {
                     }
                     mostrarPergunta(lastNormal, false);
                 }
-            
+
                 // --- TRAVE AQUI, DEPOIS DE mostrarPergunta ---
                 quiz.querySelectorAll('.borraProgress .avanco').forEach(barra => {
                     barra.style.width = '100%';
@@ -545,24 +594,24 @@ triggers.forEach(btn => {
                     texto.style.color = '#ffffff';
                 });
             }
-        
+
             quiz.querySelectorAll('.closeModal').forEach(btn => {
                 btn.addEventListener('click', function () {
                     quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
                     resultadoAberto = false;
                 });
             });
-        
+
             quiz.querySelectorAll('.refazer').forEach(btn => {
                 btn.addEventListener('click', function () {
                     localStorage.removeItem(respostasKey);
                     localStorage.removeItem(resultadoKey);
                     localStorage.removeItem(pontuacaoKey);
-        
+
                     Object.keys(pontuacaoBuzzFeed).forEach(feed => pontuacaoBuzzFeed[feed] = 0);
-        
+
                     quiz.querySelectorAll('.quiz-modal').forEach(modal => modal.style.display = 'none');
-        
+
                     questions.forEach((q, i) => {
                         q.style.display = (i === 0) ? 'block' : 'none';
                         q.querySelectorAll('.quiz-option').forEach(opt => {
@@ -573,24 +622,24 @@ triggers.forEach(btn => {
                             q.style.display = 'none';
                         }
                     });
-        
+
                     perguntasLiberadas = new Set();
                     perguntasLiberadas.add(0);
-        
+
                     bonusAtiva = false;
-        
+
                     atualizarNavegacao(0);
-        
+
                     resultadoAberto = false;
-        
+
                     quiz.quizFinalizado = false;
-        
+
                     inicializarSlider(0);
-        
+
                     atualizarBarraProgresso(quiz, questions, 0, false, false);
                 });
             });
-        
+
             atualizarBarraProgresso(quiz, questions, 0, false, false);
             mostrarPergunta(0);
         });
